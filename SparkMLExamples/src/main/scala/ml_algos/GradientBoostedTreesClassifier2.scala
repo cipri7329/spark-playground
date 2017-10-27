@@ -1,15 +1,11 @@
 package ml_algos
 
-import org.apache.spark.rdd.RDD
-import org.apache.spark.sql.SQLContext
-import org.apache.spark.{SparkConf, SparkContext}
-import org.elasticsearch.spark._
-import org.apache.spark.sql.SparkSession
-import org.apache.spark.ml.{Pipeline, PipelineModel}
+import org.apache.spark.SparkConf
+import org.apache.spark.ml.Pipeline
 import org.apache.spark.ml.classification.{GBTClassificationModel, GBTClassifier}
 import org.apache.spark.ml.evaluation.MulticlassClassificationEvaluator
 import org.apache.spark.ml.feature.{IndexToString, StringIndexer, VectorIndexer}
-import org.apache.spark.mllib.tree.configuration.BoostingStrategy
+import org.apache.spark.sql.SparkSession
 
 /**
   * https://spark.apache.org/docs/latest/ml-classification-regression.html#gradient-boosted-tree-classifier
@@ -18,7 +14,7 @@ import org.apache.spark.mllib.tree.configuration.BoostingStrategy
   */
 
 
-object GradientBoostedTreesClassifier1 extends App {
+object GradientBoostedTreesClassifier2 extends App {
   val path = "src/main/resources/"
 
   val sparkConf = new SparkConf()
@@ -42,7 +38,6 @@ object GradientBoostedTreesClassifier1 extends App {
     .setInputCol("label")
     .setOutputCol("indexedLabel")
     .fit(data)
-
   // Automatically identify categorical features, and index them.
   // Set maxCategories so features with > 4 distinct values are treated as continuous.
   val featureIndexer = new VectorIndexer()
@@ -58,16 +53,13 @@ object GradientBoostedTreesClassifier1 extends App {
   val gbt = new GBTClassifier()
     .setLabelCol("indexedLabel")
     .setFeaturesCol("indexedFeatures")
-    .setPredictionCol("predictedLabel")
     .setMaxIter(10)
 
   // Convert indexed labels back to original labels.
   val labelConverter = new IndexToString()
-    .setInputCol("predictedLabel")
-    .setOutputCol("prediction")
+    .setInputCol("prediction")
+    .setOutputCol("predictedLabel")
     .setLabels(labelIndexer.labels)
-
-
 
   // Chain indexers and GBT in a Pipeline.
   val pipeline = new Pipeline()
@@ -79,26 +71,18 @@ object GradientBoostedTreesClassifier1 extends App {
   // Make predictions.
   val predictions = model.transform(testData)
 
-  predictions.printSchema()
-
-  predictions.sample(false, 0.3).show(15)
-
   // Select example rows to display.
-  predictions.select("predictedLabel", "label", "features").show(15)
+  predictions.select("predictedLabel", "label", "features").show(5)
 
   // Select (prediction, true label) and compute test error.
   val evaluator = new MulticlassClassificationEvaluator()
     .setLabelCol("indexedLabel")
-    .setPredictionCol("predictedLabel")
+    .setPredictionCol("prediction")
     .setMetricName("accuracy")
   val accuracy = evaluator.evaluate(predictions)
   println("Test Error = " + (1.0 - accuracy))
 
-
-
   val gbtModel = model.stages(2).asInstanceOf[GBTClassificationModel]
   println("Learned classification GBT model:\n" + gbtModel.toDebugString)
-
-  println("Done")
 
 }
