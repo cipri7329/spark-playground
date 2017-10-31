@@ -1,5 +1,6 @@
 package ml_algos
 
+import ml_algos.GradientBoostedTreesClassifier1.predictions
 import org.apache.spark.SparkConf
 import org.apache.spark.ml.Pipeline
 import org.apache.spark.ml.classification.{GBTClassificationModel, GBTClassifier}
@@ -65,11 +66,39 @@ object GradientBoostedTreesClassifier2 extends App {
   val pipeline = new Pipeline()
     .setStages(Array(labelIndexer, featureIndexer, gbt, labelConverter))
 
+
+  val labelIndexer1 = new StringIndexer()
+    .setInputCol("label")
+    .setOutputCol("indexedLabel")
+    .fit(data)
+  val li1 = labelIndexer1.transform(data)
+  li1.printSchema()
+  li1.show(15)
+
+
+  val featureIndexer1 = new VectorIndexer()
+    .setInputCol("features")
+    .setOutputCol("indexedFeatures")
+    .setMaxCategories(4)
+    .fit(data)
+  val fi1 = featureIndexer1.transform(data)
+  fi1.printSchema()
+  fi1.show(15)
+
+
+  println(gbt.explainParams)
+
   // Train model. This also runs the indexers.
   val model = pipeline.fit(trainingData)
 
   // Make predictions.
   val predictions = model.transform(testData)
+
+  predictions.printSchema()
+
+  predictions.sample(false, 0.3).show(15)
+
+  predictions.show(15)
 
   // Select example rows to display.
   predictions.select("predictedLabel", "label", "features").show(5)
@@ -82,7 +111,7 @@ object GradientBoostedTreesClassifier2 extends App {
   val accuracy = evaluator.evaluate(predictions)
   println("Test Error = " + (1.0 - accuracy))
 
-  val gbtModel = model.stages(2).asInstanceOf[GBTClassificationModel]
-  println("Learned classification GBT model:\n" + gbtModel.toDebugString)
+//  val gbtModel = model.stages(1).asInstanceOf[GBTClassificationModel]
+//  println("Learned classification GBT model:\n" + gbtModel.toDebugString)
 
 }
