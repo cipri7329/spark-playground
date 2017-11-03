@@ -1,4 +1,5 @@
 .idea
 .DS_Store
-.metastore_db
 
+/metastore_db/
+spark-warehouse/

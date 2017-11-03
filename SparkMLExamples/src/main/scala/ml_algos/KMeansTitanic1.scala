@@ -133,7 +133,6 @@ object KMeansTitanic1 extends App {
   val predictions = model.transform(testData)
 
 
-
   predictions.show()
 
   predictions.sample(false, 0.5).show()
@@ -152,8 +151,46 @@ object KMeansTitanic1 extends App {
   println("Cluster Centers2: ")
   kmeansModel.clusterCenters.map(_.toSparse).foreach(println)
 
+
+  trainingData.show()
+
+  val stringCols1 = Seq("Sex", "Embarked")
+  val indexers1 = stringCols1.map { colName =>
+    new StringIndexer()
+      .setInputCol(colName)
+      .setOutputCol(colName + "Indexed")
+  }
+
+  val numericCols1 = Seq("Age", "SibSp", "Parch", "Fare", "Pclass")
+
+  val featuresCol1 = "features"
+  val assembler1 = new VectorAssembler()
+    .setInputCols((numericCols1 ++ stringCols1.map(_ + "Indexed")).toArray)
+    .setOutputCol(featuresCol1)
+
+
+  val stages1 = (indexers1 :+ assembler1).toArray
+  val pipeline1 = new Pipeline()
+    .setStages(stages1)
+
+  trainingData.show()
+
+  val model1 = pipeline1.fit(trainingData)
+  val transformedData = model1.transform(trainingData)
+
+  transformedData.show()
+
+  // Trains a k-means model.
+  val kmeans1 = new KMeans()
+    .setFeaturesCol(featuresCol)
+    .setK(2)
+    .setMaxIter(1000)
+
+  val kmodel1 = kmeans1.fit(transformedData)
+
+
   // Evaluate clustering by computing Within Set Sum of Squared Errors.
-  val WSSSE = kmeansModel.computeCost(testData)
+  val WSSSE = kmodel1.computeCost(transformedData)
   println(s"Within Set Sum of Squared Errors = $WSSSE")
 
 
