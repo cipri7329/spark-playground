@@ -5,10 +5,14 @@ import org.apache.spark.ml.{Pipeline, PipelineModel}
 import org.apache.spark.ml.classification.DecisionTreeClassifier
 import org.apache.spark.ml.clustering.{KMeans, KMeansModel}
 import org.apache.spark.ml.feature.{StringIndexer, VectorAssembler}
+import org.apache.spark.ml.linalg.DenseVector
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.functions.avg
 import org.apache.spark.sql.types.DoubleType
 import org.apache.spark.sql.{DataFrame, SparkSession}
+import org.apache.spark.ml.linalg.Vector
+import org.apache.spark.mllib.clustering.{KMeans => KMeansOld, KMeansModel => KMeansModelOld}
+import org.apache.spark.mllib.linalg.{Vector => VectorOld, Vectors => VectorsOld, DenseVector => DenseVectorOld}
 
 /**
   * https://spark.apache.org/docs/latest/ml-classification-regression.html#gradient-boosted-tree-classifier
@@ -65,7 +69,8 @@ object KMeansTitanic1 extends App {
   //clean dataset
   val avgAge = rawTitanicDataset.select(avg("Age")).first().getDouble(0)
   val avgFare = rawTitanicDataset.select(avg("Fare")).first().getDouble(0)
-  val imputedTrainMap = Map[String, Any]("Age" -> avgAge, "Embarked" -> "S", "Fare" -> avgFare)
+//  val imputedTrainMap = Map[String, Any]("Age" -> avgAge, "Cabin" -> "", "Embarked" -> "S", "Ticket" -> "113803", "Sex" -> 1, "Fare" -> avgFare)
+  val imputedTrainMap = Map[String, Any]("Age" -> avgAge, "Cabin" -> "", "Ticket" -> "", "Embarked" -> "S", "Fare" -> avgFare)
 
   // Dropping rows containing any null values.
   val titanicDataset = rawTitanicDataset.na.fill(imputedTrainMap)
@@ -76,16 +81,16 @@ object KMeansTitanic1 extends App {
   // Split the data into training and test sets (30% held out for testing).
   val Array(trainingData, testData) = titanicDataset.randomSplit(Array(0.7, 0.3))
 
-
-
   val stringCols = Seq("Sex", "Embarked")
+//  val stringCols = Seq("Cabin")
   val indexers = stringCols.map { colName =>
     new StringIndexer()
       .setInputCol(colName)
       .setOutputCol(colName + "Indexed")
+      .setHandleInvalid("skip")
   }
 
-  val numericCols = Seq("Age", "SibSp", "Parch", "Fare", "Pclass")
+  val numericCols = Seq("Pclass", "Age", "SibSp", "Parch", "Fare")
 
     /*
     --columns Pclass,Sex,Age,SibSp,Parch,Fare,Embarked
@@ -106,8 +111,9 @@ object KMeansTitanic1 extends App {
   // Trains a k-means model.
   val kmeans = new KMeans()
     .setFeaturesCol(featuresCol)
+    .setPredictionCol("cluster")
     .setK(2)
-    .setMaxIter(1000)
+    .setMaxIter(2000)
 
   println(kmeans.explainParams)
 
@@ -143,7 +149,41 @@ object KMeansTitanic1 extends App {
       --maxIterations 1000",
   */
 
+  val p = predictions.withColumn("cluster", $"cluster".cast(DoubleType)).cache()
+
+  p.show()
+
+  val pCount = p.count()
+
+  val matched = p.where($"Survived" === $"cluster").cache()
+  val died = matched.where($"Survived" === 0.0)
+  val survived = matched.where($"Survived" === 1.0)
+  val matchedCount = matched.count()
+
+  testData.cache()
+  val testCount = testData.count()
+  val testDied = testData.where($"Survived" === 0.0)
+  val testSurvived = testData.where($"Survived" === 1.0)
+
+  println (s"testData total: ${testCount}  died: ${testDied.count()}   survived ${testSurvived.count()}")
+  println (s"predictedData total: ${matchedCount}  died: ${died.count()}   survived ${survived.count()}")
+
+  println(s"totalCount ${testCount}  matchedCount: ${matchedCount}    predictedCount: ${pCount}")
+
+  //totalCount 272  matchedCount: 173
+  //totalCount 263  matchedCount: 156
+  //totalCount 273  matchedCount: 76
+  //totalCount 255  matchedCount: 26
+
+  //totalCount 891  matchedCount: 411
+  //totalCount 891  matchedCount: 574 - without ticket
+  //totalCount 891  matchedCount: 574 - without ticket and cabin
+
+  //totalCount 891  matchedCount: 574 - with Survived
+
   val kmeansModel = model.stages(stages.length-1).asInstanceOf[KMeansModel]
+
+
   val centers = kmeansModel.clusterCenters
   // Shows the result.
   println("Cluster Centers: ")
@@ -193,6 +233,19 @@ object KMeansTitanic1 extends App {
   val WSSSE = kmodel1.computeCost(transformedData)
   println(s"Within Set Sum of Squared Errors = $WSSSE")
 
+  val clusterCenters = kmodel1.clusterCenters.map(row => ClusterCenterItem(row.toArray.toList)).toList
 
 
+
+  val centers1: Array[VectorOld] = clusterCenters.map(i => new DenseVectorOld(i.centers.toArray)).toArray
+  val centers2: Array[Vector] = clusterCenters.map(i => new DenseVector(i.centers.toArray)).toArray
+
+  val initialModel = new KMeansModelOld(centers1)
+
+
+//  val clusteringModel = new KMeansModel()
+
+//  println(clusteringModel.uid)
 }
+
+case class ClusterCenterItem(centers: List[Double])
