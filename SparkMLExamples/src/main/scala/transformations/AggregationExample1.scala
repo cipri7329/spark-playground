@@ -14,13 +14,16 @@ object AggregationExample1 extends App{
     .config(sparkConf)
     .getOrCreate()
 
+  import org.apache.spark.sql.functions._
 
-  val s1 = Seq((1,"a"),(2,"b"),(1,"a"),(2, "b"))
+  val s1 = Seq((1,"a", "d"),(2,"b", "e"),(1,"a", "g"),(2, "b", "d"))
 
   val d1 = spark.createDataFrame(s1)
 
   d1.groupBy("_1","_2").count.show
 
+  d1.createOrReplaceTempView("temp1")
 
-
+  //group by and count by all columns
+  d1.groupBy(d1.columns.map(col(_)):_*).count.show
 }
