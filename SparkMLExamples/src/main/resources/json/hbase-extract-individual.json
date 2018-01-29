@@ -1,0 +1,24 @@
+{
+  "unitId": "load-individual",
+  "unitDescription": "load individuals from and into hbase",
+  "extract": {
+    "source": "hbase",
+    "description": "load table from hive",
+    "tableName": "party1",
+    "namespace": "testnamespace",
+    "columnFamily": "ind",
+    "schema":{
+      "type":"struct",
+      "fields":[
+        {"name":"id","type":"integer","nullable":false,"metadata":{}},
+        {"name":"fname","type":"string","nullable":true,"metadata":{}},
+        {"name":"lname","type":"string","nullable":true,"metadata":{}},
+        {"name":"isbn","type":"long","nullable":false,"metadata":{}},
+        {"name":"employed","type":"boolean","nullable":false,"metadata":{}},
+        {"name":"gpa","type":"double","nullable":false,"metadata":{}},
+        {"name":"string_arry","type":{"type":"array","elementType":"string","containsNull":true},"nullable":true,"metadata":{}},
+        {"name":"code","type":"binary","nullable":true,"metadata":{}}
+      ]
+    }
+  }
+}
