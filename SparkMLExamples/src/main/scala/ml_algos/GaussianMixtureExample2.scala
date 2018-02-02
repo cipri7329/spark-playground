@@ -107,7 +107,7 @@ object GaussianMixtureExample2 extends App {
 
   val predictions = model.transform(testData)
 
-//  val probabilityToList = udf( (ubixId:Long, predictions: DenseVector) => {
+//  val probabilityToList = udf( (id:Long, predictions: DenseVector) => {
 //    val membershipValues = predictions.toArray.zipWithIndex.sortBy(_._1)(Ordering[Double].reverse)
 //    val topMemberships = membershipValues.take(3)
 //      .toList.flatMap { case (value: Double, clusterId: Int) => List(clusterId, value) }
@@ -123,32 +123,32 @@ object GaussianMixtureExample2 extends App {
 
   predictions.show(false)
 
-//  val df_filtered = predictionsDF.withColumn("ubix_result", probabilityToList(col("probability")))
-//  val df_result = df_filtered.select("label", "ubix_result")
+//  val df_filtered = predictionsDF.withColumn("result", probabilityToList(col("probability")))
+//  val df_result = df_filtered.select("label", "result")
 
   val rdd2T = predictions.select("PassengerId", "probability").rdd
 
   val rddResult = rdd2T
     .map{ row => (row.getAs[Int](0).toLong, row.getAs[DenseVector](1).values)}
-    .map{ case (ubixId:Long, values:Array[Double]) =>
+    .map{ case (id:Long, values:Array[Double]) =>
 //      val vector = Vectors.dense(values)
       val membershipValues = values.zipWithIndex.sortBy(_._1)(Ordering[Double].reverse)
       val topMemberships = membershipValues.take(3)
         .toList.flatMap { case (value: Double, clusterId: Int) => List[Any](clusterId, value) }
-      (ubixId, topMemberships)
+      (id, topMemberships)
     }
 
   rddResult.take(10).foreach(println)
 
-//  val df_filtered = predictions.withColumn("ubix_result", probabilityToList(col("probability")))
+//  val df_filtered = predictions.withColumn("result", probabilityToList(col("probability")))
 //
 //  df_filtered.show(false)
 //
-//  val df_result = df_filtered.select("PassengerId", "ubix_result")
+//  val df_result = df_filtered.select("PassengerId", "result")
 //
 //  df_result.printSchema()
 //
-////  val rdd2 = df_result.rdd.map{ case Row(ubixId:Int, values:Array[Double]) => (ubixId, values)}
+////  val rdd2 = df_result.rdd.map{ case Row(id:Int, values:Array[Double]) => (result, values)}
 ////  val rdd2 = df_result.rdd.map{ row => (row.getAs[Int](0), row.getAs[mutable.WrappedArray[Double]](1).toArray[Double])}
 //  val rdd2 = df_result.rdd.map{ row => (row.getAs[Long](0), row.getAs[mutable.WrappedArray[Any]](1).toArray[Any].toList)}
 //

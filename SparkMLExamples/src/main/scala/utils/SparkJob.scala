@@ -12,8 +12,9 @@ trait SparkJob {
 
   implicit lazy val spark:SparkSession = SparkSession
     .builder()
-    .master("local[6]")
+    .master("local[4]")
     .appName(this.getClass.getSimpleName)
+    .config("spark.driver.bindAddress", "127.0.0.1")
     .getOrCreate()
 
 
