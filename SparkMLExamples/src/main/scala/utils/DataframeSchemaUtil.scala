@@ -3,7 +3,7 @@ package utils
 import scala.util.Try
 import org.apache.spark.sql.Dataset
 import org.apache.spark.sql.catalyst.parser.LegacyTypeStringParser
-import org.apache.spark.sql.types.{DataType, StructType}
+import org.apache.spark.sql.types.{DataType, StringType, StructField, StructType}
 
 object DataframeSchemaUtil {
 
@@ -17,5 +17,11 @@ object DataframeSchemaUtil {
       case _ => throw new RuntimeException(s"Failed parsing StructType: $json")
     }
   }
+
+  def dfStringSchema(columnNames: List[String]): StructType = {
+    val colsStruct = columnNames.map(colName => StructField(name = colName, dataType = StringType, nullable = true))
+    StructType(colsStruct )
+  }
+
 
 }

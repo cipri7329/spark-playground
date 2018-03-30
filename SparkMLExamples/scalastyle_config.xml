@@ -1,0 +1,18 @@
+<scalastyle commentFilter="enabled">
+    <name>Scalastyle standard configuration</name>
+    <check level="warning" class="org.scalastyle.scalariform.NullChecker" enabled="true"></check>
+    <check level="warning" class="org.scalastyle.scalariform.PublicMethodsHaveTypeChecker" enabled="true"></check>
+    <check level="warning" class="org.scalastyle.file.FileTabChecker" enabled="true"/>
+    <check level="warning" class="org.scalastyle.file.FileLengthChecker" enabled="true">
+        <parameters>
+            <parameter name="maxFileLength">800</parameter>
+        </parameters>
+    </check>
+    <check enabled="true" class="org.scalastyle.scalariform.CyclomaticComplexityChecker" level="warning">
+        <parameters>
+            <parameter name="maximum">10</parameter>
+            <parameter name="countCases">true</parameter>
+        </parameters>
+    </check>
+    <check enabled="true" class="org.scalastyle.scalariform.EqualsHashCodeChecker" level="warning"/>
+</scalastyle>
