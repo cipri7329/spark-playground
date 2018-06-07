@@ -56,7 +56,7 @@ object TypeConversionExample1 extends App{
 
   var resultDF = d1
 
-  def convertAllToString(df: DataFrame) = {
+  def convertAllToString(df: DataFrame): DataFrame = {
     var resultDF = df
     val newType = "string"
     for(name:String <- df.columns){
@@ -65,7 +65,7 @@ object TypeConversionExample1 extends App{
     resultDF
   }
 
-  def convertColumn(df: DataFrame, name:String, newType:String) = {
+  def convertColumn(df: DataFrame, name:String, newType:String): DataFrame = {
     val old_column_tag = "_old_column_name"
     val df_1 = df.withColumnRenamed(name, old_column_tag)
     df_1.withColumn(name, df_1.col(old_column_tag).cast(newType)).drop(old_column_tag)

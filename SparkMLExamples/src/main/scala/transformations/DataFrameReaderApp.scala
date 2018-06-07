@@ -1,15 +1,16 @@
 package transformations
 
+import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.{DataFrame, DataFrameReader, Dataset, Row}
 import org.apache.spark.sql.execution.datasources.csv.{CSVOptions, TextInputCSVDataSource}
-import org.apache.spark.sql.types.{StructType}
+import org.apache.spark.sql.types.{IntegerType, StructField, StructType}
 import org.apache.spark.sql.functions._
 import utils.SparkJob
 import utils.TimeUtil.TimeProfilerUtility._
 
-object DataFrameReaderApp extends App with SparkJob{
+object DataFrameReaderApp extends SparkJob{
 
-  override def main(args: Array[String]): Unit = {
+  def main(args: Array[String]): Unit = {
 
 //    time(DataFrameReaderApp.readLargeFileWithoutSchema())
     println("====warm up finished====")
@@ -84,7 +85,7 @@ object DataFrameReaderApp extends App with SparkJob{
   def readLargeFileWithoutSchemaLimited(): DataFrame = {
     println("===read WITHOUT schema - with limit===")
     val sparkSession = spark
-
+    import spark.implicits._
 
     val dataFrameReader: DataFrameReader = spark.read
       .option("header", true)
@@ -100,7 +101,8 @@ object DataFrameReaderApp extends App with SparkJob{
 //    println(df2.count())
 //    df2.show()
     //    df.printSchema()
-    null
+    val empty: RDD[Int] = spark.sparkContext.parallelize(List[Int]())
+    empty.toDF()
   }
 
   def readLargeFileWithSchemaOptimized(): Dataset[Row] = {

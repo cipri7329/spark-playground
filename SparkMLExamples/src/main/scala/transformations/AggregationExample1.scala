@@ -36,7 +36,7 @@ object AggregationExample1 extends App{
       (c1, c2) => {
         val p1 = when(c1.isNaN, c2).otherwise(c1) //defaults to other value
         val p2 = when(c2.isNaN, lit(0)).otherwise(c2) //defaults to zero
-        val avg1 = p1+p2 //defaults to zero
+        val avg1 = p1 + p2 //defaults to zero
         avg1 //average value. discard average with zero
       }
     }

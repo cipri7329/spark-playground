@@ -4,25 +4,26 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.gydoosh</groupId>
+    <groupId>org.playground</groupId>
     <artifactId>SparkMLExamples</artifactId>
     <version>1.0</version>
     <packaging>jar</packaging>
 
     <properties>
+        <java.version>1.8</java.version>
         <scala.version>2.11.8</scala.version>
         <scala.binary.version>2.11</scala.binary.version>
         <spark.version>2.2.1</spark.version>
         <hadoop.version>2.6.0-cdh5.4.4</hadoop.version>
         <hadoop.common.version>2.6.0-cdh5.4.4</hadoop.common.version>
         <PermGen>64m</PermGen>
-        <MaxPermGen>512m</MaxPermGen>
-        <CodeCacheSize>512m</CodeCacheSize>
+        <MaxPermGen>1024m</MaxPermGen>
+        <CodeCacheSize>1024m</CodeCacheSize>
         <scala.macros.version>2.0.1</scala.macros.version>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
-        <java.version>1.8</java.version>
-
+        <kafka.version>0.11.0.1</kafka.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
 
@@ -61,13 +62,7 @@
             <groupId>org.apache.spark</groupId>
             <artifactId>spark-core_${scala.binary.version}</artifactId>
             <version>${spark.version}</version>
-            <!-- scope>provided</scope -->
         </dependency>
-        <!--<dependency>-->
-        <!--<groupId>com.databricks</groupId>-->
-        <!--<artifactId>spark-csv_${scala.binary.version}</artifactId>-->
-        <!--<version>1.5.0</version>-->
-        <!--</dependency>-->
         <dependency>
             <groupId>com.univocity</groupId>
             <artifactId>univocity-parsers</artifactId>
@@ -96,9 +91,26 @@
             <version>${spark.version}</version>
             <!-- scope>provided</scope -->
         </dependency>
+        <!-- spark and kafka -->
+        <dependency>
+            <groupId>org.apache.spark</groupId>
+            <artifactId>spark-sql-kafka-0-10_2.11</artifactId>
+            <version>${spark.version}</version>
+        </dependency>
+
+        <!--kafka dependencies-->
+        <dependency>
+            <groupId>org.apache.kafka</groupId>
+            <artifactId>kafka-clients</artifactId>
+            <version>${kafka.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.kafka</groupId>
+            <artifactId>kafka_${scala.binary.version}</artifactId>
+            <version>${kafka.version}</version>
+        </dependency>
 
         <!--Elasti search dependencies -->
-
         <dependency>
             <groupId>org.elasticsearch</groupId>
             <artifactId>elasticsearch-hadoop</artifactId>
@@ -126,6 +138,8 @@
                 </exclusion>
             </exclusions>
         </dependency>
+
+
 
         <dependency>
             <groupId>org.apache.hadoop</groupId>
@@ -161,6 +175,7 @@
             <version>${scala.version}</version>
         </dependency>
 
+
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-core</artifactId>
@@ -175,6 +190,15 @@
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
             <version>2.6.2</version>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.specs2/specs2 -->
+        <dependency>
+            <groupId>org.specs2</groupId>
+            <artifactId>specs2_2.11</artifactId>
+            <version>3.7</version>
+            <type>pom</type>
+            <scope>test</scope>
         </dependency>
 
     </dependencies>

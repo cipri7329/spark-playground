@@ -1,3 +1,21 @@
+<!--
+If you wish to turn off checking for a section of code, you can put a comment in the source
+before and after the section, with the following syntax:
+  // scalastyle:off
+  ...  // stuff that breaks the styles
+  // scalastyle:on
+You can also disable only one rule, by specifying its rule id, as specified in:
+  http://www.scalastyle.org/rules-0.7.0.html
+  // scalastyle:off no.finalize
+  override def finalize(): Unit = ...
+  // scalastyle:on no.finalize
+This file is divided into 3 sections:
+ (1) rules that we enforce.
+ (2) rules that we would like to enforce, but haven't cleaned up the codebase to turn on yet
+     (or we need to make the scalastyle rule more configurable).
+ (3) rules that we don't want to enforce.
+-->
+
 <scalastyle commentFilter="enabled">
     <name>Scalastyle standard configuration</name>
     <check level="warning" class="org.scalastyle.scalariform.NullChecker" enabled="true"></check>
@@ -15,4 +33,15 @@
         </parameters>
     </check>
     <check enabled="true" class="org.scalastyle.scalariform.EqualsHashCodeChecker" level="warning"/>
+
+    <!--<check level="error" class="org.scalastyle.scalariform.SpacesAfterPlusChecker" enabled="true"></check>-->
+    <!--<check level="error" class="org.scalastyle.scalariform.SpacesBeforePlusChecker" enabled="true"></check>-->
+
+    <check level="error" class="org.scalastyle.file.WhitespaceEndOfLineChecker" enabled="true"></check>
+    <check level="error" class="org.scalastyle.scalariform.NoFinalizeChecker" enabled="true"></check>
+
+    <check level="error" class="org.scalastyle.scalariform.CovariantEqualsChecker" enabled="true"></check>
+    <check level="error" class="org.scalastyle.scalariform.StructuralTypeChecker" enabled="true"></check>
+    <check level="error" class="org.scalastyle.scalariform.UppercaseLChecker" enabled="true"></check>
+
 </scalastyle>

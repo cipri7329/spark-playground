@@ -8,10 +8,10 @@ import utils.{ResourcesUtil, SparkJob}
 import org.apache.spark.sql.functions._
 import utils.TimeUtil.TimeProfilerUtility._
 
-object SolarStationKMeansApp extends App with SparkJob{
+object SolarStationKMeansApp extends SparkJob{
 
 
-  override def main(args: Array[String]): Unit = {
+  def main(args: Array[String]): Unit = {
 
     var stations = loadSolarStations()
     stations = enhanceSolarStations(stations)
@@ -22,14 +22,14 @@ object SolarStationKMeansApp extends App with SparkJob{
 //    trainingDataDF()
   }
 
-  def loadSolarStations() = {
+  def loadSolarStations(): DataFrame = {
     val filePath = "src/main/resources/parquet/solar_station"
     println(s"===READING from: $filePath")
     val df = spark.read.parquet(filePath)
     df
   }
 
-  def enhanceSolarStations(stations_ : DataFrame) = {
+  def enhanceSolarStations(stations_ : DataFrame): DataFrame = {
     var stations = stations_
 
     stations = stations.withColumn("s_lat", col("lat"))
@@ -45,7 +45,7 @@ object SolarStationKMeansApp extends App with SparkJob{
     stations
   }
 
-  def getCentroids(stations : DataFrame) = {
+  def getCentroids(stations : DataFrame): Array[Vector] = {
     import org.apache.spark.mllib.linalg.Vectors
     import spark.implicits._
 
@@ -60,7 +60,7 @@ object SolarStationKMeansApp extends App with SparkJob{
     centroids
   }
 
-  def initKMeans(centroids: Array[Vector], clusters: Int) = {
+  def initKMeans(centroids: Array[Vector], clusters: Int): Unit = {
     val initialModel = new KMeansModel(clusterCenters=centroids)
 
 //    val dataRDD = trainingDataRDD().cache()
@@ -112,7 +112,7 @@ object SolarStationKMeansApp extends App with SparkJob{
   }
 
 
-  def trainingDataDF() = {
+  def trainingDataDF(): DataFrame = {
 
     val measurements = Seq(
         (39.0, 255.0),
@@ -275,7 +275,7 @@ object SolarStationKMeansApp extends App with SparkJob{
     df
   }
 
-  def trainingDataRDD() = {
+  def trainingDataRDD(): RDD[Vector] = {
     val weatherMeasurements = Seq(
       Vectors.dense(39.0, 255.0),
       Vectors.dense(35.0, 263.0),

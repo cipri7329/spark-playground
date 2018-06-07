@@ -45,32 +45,32 @@ trait SparkJob {
   }
 
 
-  def saveAsParquet[T](dataset: Dataset[T], path: String, partitionByColumn: String = null) = {
+  def saveAsParquet[T](dataset: Dataset[T], path: String, partitionByColumn: Option[String]): Unit = {
     println(s"===###: saving as parquet to: $path")
     var writer = dataset.write
     writer = writer.mode("overwrite").format("parquet")
-    if (partitionByColumn!= null)
-      writer = writer.partitionBy(partitionByColumn)
+    if (partitionByColumn.isDefined)
+      writer = writer.partitionBy(partitionByColumn.get)
     writer.save(path)
   }
 
-  def saveAsTable[T](dataset: Dataset[T], path: String, partitionByColumn: String = null) = {
+  def saveAsTable[T](dataset: Dataset[T], path: String, partitionByColumn: Option[String]): Unit = {
     println(s"===###: saving as hive table to: $path")
     var writer = dataset.write
     writer = writer.mode("overwrite")
-    if (partitionByColumn!= null)
-      writer = writer.partitionBy(partitionByColumn)
+    if (partitionByColumn.isDefined)
+      writer = writer.partitionBy(partitionByColumn.get)
     writer.saveAsTable(path)
   }
 
-  def saveAsCSV[T](dataset: Dataset[T], path: String, partitionByColumn: String = null) = {
+  def saveAsCSV[T](dataset: Dataset[T], path: String, partitionByColumn: Option[String]): Unit = {
     println(s"===###: saving as csv to: $path")
     var writer = dataset.write
     writer = writer.mode("overwrite").option("header", "true").format("csv")
-    if (partitionByColumn!= null)
-      writer = writer.partitionBy(partitionByColumn)
+    if (partitionByColumn.isDefined)
+      writer = writer.partitionBy(partitionByColumn.get)
     writer.save(path)
   }
 
-  def sparkJob = this
+  def sparkJob: SparkJob = this
 }
