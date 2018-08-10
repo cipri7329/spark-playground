@@ -1,0 +1,99 @@
+<configuration debug="true" scan="true" scanPeriod="30 seconds">
+
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{dd/MM/yyyy HH:mm:ss.SSS} - %-5level %X{correlationId} [%t] %logger{15} - %msg%n</pattern>
+        </encoder>
+    </appender>
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>logs/bde-server/bde-server.log</file>
+        <encoder>
+            <charset>UTF-8</charset>
+            <pattern>%d{dd/MM/yyyy HH:mm:ss.SSS} - %-5level %X{correlationId} [%t] %logger{15} - %msg%n</pattern>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>logs/bde-server/bde-server.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <maxHistory>10</maxHistory>
+            <maxFileSize>50MB</maxFileSize>
+            <maxHistory>10</maxHistory>
+        </rollingPolicy>
+    </appender>
+
+    <appender name="ODATAFILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>logs/bde-server/odata.log</file>
+        <encoder>
+            <charset>UTF-8</charset>
+            <pattern>%d{dd/MM/yyyy HH:mm:ss.SSS} - %-5level %X{correlationId} [%t] %logger{15} - %msg%n</pattern>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>logs/bde-server/odata.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <maxHistory>10</maxHistory>
+            <maxFileSize>50MB</maxFileSize>
+            <maxHistory>10</maxHistory>
+        </rollingPolicy>
+    </appender>
+
+    <appender name="JDBCTHRIFT" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>logs/bde-server/jdbc-thrift.log</file>
+        <encoder>
+            <charset>UTF-8</charset>
+            <pattern>%d{dd/MM/yyyy HH:mm:ss.SSS} - %-5level %X{correlationId} [%t] %logger{15} - %msg%n</pattern>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>logs/bde-server/jdbc-thrift.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <maxHistory>10</maxHistory>
+            <maxFileSize>50MB</maxFileSize>
+            <maxHistory>10</maxHistory>
+        </rollingPolicy>
+    </appender>
+
+    <appender name="LOGSTASH" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>logs/bde-server/bde-server-logstash.json</file>
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder"/>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>logs/bde-server/bde-server-%d{yyyy-MM-dd}.%i-logstash.json</fileNamePattern>
+            <maxHistory>10</maxHistory>
+            <maxFileSize>50MB</maxFileSize>
+            <maxHistory>10</maxHistory>
+        </rollingPolicy>
+    </appender>
+
+    <logger name="com.blueprint" level="DEBUG"/>
+
+    <logger name="com.blueprint.bde.odataes" level="DEBUG">
+        <appender-ref ref="ODATAFILE"/>
+    </logger>
+
+    <logger name="org.apache.spark.sql.hive.thriftserver" level="DEBUG">
+        <appender-ref ref="JDBCTHRIFT"/>
+    </logger>
+
+    <!--APACHE LOGGERS-->
+    <logger name="org.apache.spark" level="INFO"/>
+    <logger name="org.apache.hive" level="INFO"/>
+    <logger name="org.apache.hadoop" level="WARN"/>
+    <logger name="org.apache.hadoop.yarn.util.RackResolver" level="WARN"/>
+    <logger name="org.apache.spark.sql.catalyst" level="WARN"/>
+    <logger name="org.apache.spark.ContextCleaner" level="WARN"/>
+    <logger name="org.apache.spark.storage.BlockManagerInfo" level="WARN"/>
+    <logger name="org.apache.spark.scheduler.DAGScheduler" level="WARN"/>
+    <logger name="org.apache.spark" level="WARN"/>
+    <logger name="org.elasticsearch " level="INFO"/>
+    <logger name="parquet.hadoop" level="WARN"/>
+    <logger name="org.apache.parquet.hadoop" level="WARN"/>
+    <logger name="org.apache.kafka" level="WARN"/>
+    <logger name="org.apache.hadoop.hive.metastore" level="WARN"/>
+    <logger name="org.apache.zookeeper" level="WARN"/>
+    <logger name="org.apache.curator" level="WARN"/>
+    <logger name="org.apache.commons.httpclient" level="WARN"/>
+    <logger name="httpclient.wire" level="WARN"/>
+    <logger name="org.apache.hive.service.cli.thrift.ThriftHttpServlet" level="WARN"/>
+    <logger name="org.apache.spark.sql.hive.thriftserver.server" level="DEBUG"/>
+
+    <!--ROOT LOGGER-->
+    <root level="WARN">
+        <appender-ref ref="STDOUT"/>
+        <appender-ref ref="FILE"/>
+        <appender-ref ref="LOGSTASH"/>
+    </root>
+</configuration>
